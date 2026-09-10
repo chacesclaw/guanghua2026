@@ -1,0 +1,174 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/chacesclaw/guanghua2026/schema/schedule.schema.json",
+  "title": "课表数据契约",
+  "description": "整个项目唯一的数据源。网页、日历订阅、小程序内置数据全部由这一个文件生成。",
+  "type": "object",
+  "required": ["version", "lastUpdated", "CATS", "DAYS"],
+  "additionalProperties": false,
+  "properties": {
+    "version": {
+      "type": "string",
+      "description": "数据版本号，建议直接用更新时间，如 2026-09-10 10:45"
+    },
+    "lastUpdated": {
+      "type": "string",
+      "description": "页面上显示的「最后更新」文案"
+    },
+
+    "CATS": {
+      "type": "object",
+      "description": "事件分类字典。key 是分类代号，events[].cat 引用它。",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "object",
+        "required": ["label", "color"],
+        "additionalProperties": false,
+        "properties": {
+          "label": { "type": "string", "description": "分类显示名，如「必修课程」" },
+          "color": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" },
+          "hideInLegend": { "type": "boolean", "description": "是否在图例里隐藏，默认 false" }
+        }
+      }
+    },
+
+    "DAYS": {
+      "type": "array",
+      "description": "按时间顺序排列的日期块。一个元素可以是一天，也可以是连续多天合并的一块（start 和 end 不同）。多天块里的定时事件，在日历里会按天重复；全天事件则是一条连续的多日事件。",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["key", "start", "end", "d1", "d2", "big", "week", "events"],
+        "additionalProperties": false,
+        "properties": {
+          "key":   { "type": "string", "description": "唯一短标识，如 0829 或 w1" },
+          "start": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$" },
+          "end":   { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$" },
+          "d1":    { "type": "string", "description": "标签第一行，如 09.01" },
+          "d2":    { "type": "string", "description": "标签第二行，如 周一" },
+          "big":   { "type": "string", "description": "大标题，如 9 月 1 日" },
+          "week":  { "type": "string", "description": "星期，如 周一" },
+          "note":  { "type": "string", "description": "整天的备注横幅，可选" },
+          "events": { "type": "array", "items": { "$ref": "#/$defs/event" } }
+        }
+      }
+    },
+
+    "TEACHERS": {
+      "type": "object",
+      "description": "可选。老师简介弹窗数据，key 是姓名，与 events[].who 对应。涉及个人信息，公开发布前请确认已获授权。",
+      "additionalProperties": { "$ref": "#/$defs/teacher" }
+    },
+
+    "PINYIN": {
+      "type": "object",
+      "description": "可选。姓名到全拼的映射，只用于筛选下拉框按拼音排序。未收录的姓名按原字符串排序。",
+      "additionalProperties": { "type": "string" }
+    },
+
+    "QA_ITEMS": {
+      "type": "array",
+      "description": "可选。常见问题 / 重要提醒卡片。",
+      "items": {
+        "type": "object",
+        "required": ["title", "body"],
+        "additionalProperties": false,
+        "properties": {
+          "tag":   { "type": "string", "description": "左上角标签，如「重要提醒」" },
+          "date":  { "type": "string", "description": "右上角小字，如「关于选课」「关于考试安排」" },
+          "title": { "type": "string" },
+          "body":  { "type": "string" }
+        }
+      }
+    },
+
+    "CHANGELOG": {
+      "type": "array",
+      "description": "可选。更新记录，让同学知道哪天改了什么。",
+      "items": {
+        "type": "object",
+        "required": ["date", "changes"],
+        "additionalProperties": false,
+        "properties": {
+          "date":   { "type": "string", "description": "如 2026-09-10" },
+          "source": { "type": "string", "description": "改动依据，如「班主任通知」" },
+          "changes": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "required": ["type", "text"],
+              "additionalProperties": false,
+              "properties": {
+                "type": { "enum": ["add", "update", "remove", "fix"] },
+                "text": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "CAL_MONTHS": {
+      "type": "array",
+      "description": "可选。学期总览页要渲染哪几个月。留空则由 DAYS 的日期范围自动推导。",
+      "items": {
+        "type": "object",
+        "required": ["y", "m"],
+        "additionalProperties": false,
+        "properties": {
+          "y": { "type": "integer" },
+          "m": { "type": "integer", "minimum": 1, "maximum": 12 }
+        }
+      }
+    }
+  },
+
+  "$defs": {
+    "event": {
+      "type": "object",
+      "required": ["time", "cat", "title"],
+      "additionalProperties": false,
+      "properties": {
+        "time":   { "type": "string", "description": "时间段，如 09:00–12:30。全天事件填「全天」。分隔符用短横或波浪线都可以。" },
+        "cat":    { "type": "string", "description": "分类代号，必须是 CATS 里已定义的 key" },
+        "title":  { "type": "string", "description": "课程 / 事项名称" },
+        "sub":    { "type": "string", "description": "副标题，如「必修 1 学分」" },
+        "who":    { "type": "string", "description": "授课老师。多位老师用「、」或「/」分隔。" },
+        "cls":    { "type": "string", "description": "面向班级，如「2026 级 X 班」" },
+        "nature": { "type": "string", "description": "课程性质，如 必修 / 选修" },
+        "credit": { "type": "string", "description": "学分，纯数字字符串" },
+        "where":  { "type": "string", "description": "上课地点" },
+        "note":   { "type": "string", "description": "备注，如调课说明" },
+        "link":   { "$ref": "#/$defs/link" },
+        "links":  { "type": "array", "items": { "$ref": "#/$defs/link" } },
+        "endDate": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$", "description": "可选。事件的结束日期，用于覆盖所在日期块的 end。定时事件跨多天时会生成成「每天同一时段」的重复事件；全天事件跨多天时是一条连续的多日事件。" },
+        "noAlarm": { "type": "boolean", "description": "该事件不生成日历提醒" }
+      }
+    },
+
+    "link": {
+      "type": "object",
+      "required": ["label", "url"],
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "description": "链接显示名，如「课前阅读材料」" },
+        "url":   { "type": "string", "description": "外部链接地址。本框架只存链接，不托管任何课程材料。" }
+      }
+    },
+
+    "teacher": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "title":       { "type": "string", "description": "职称" },
+        "dept":        { "type": "string", "description": "所属院系 / 机构" },
+        "focus":       { "type": "string", "description": "研究方向" },
+        "bio":         { "type": "string", "description": "简介" },
+        "source":      { "type": "string", "description": "信息来源链接" },
+        "sourceLabel": { "type": "string", "description": "来源说明文字" },
+        "confidence":  { "enum": ["高", "中", "低"], "description": "信息可信度自评" }
+      }
+    }
+  }
+}

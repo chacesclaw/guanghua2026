@@ -1,0 +1,14 @@
+{
+  "name": "guanghua2026",
+  "version": "1.0.0",
+  "description": "课表三件套开源框架：静态课表网页 + 微信小程序 + 日历订阅，单一 JSON 数据源",
+  "type": "module",
+  "license": "MIT",
+  "scripts": {
+    "build": "node build/build.mjs",
+    "validate": "node build/validate.mjs",
+    "demo": "node build/build.mjs --data data/schedule.example.json --config config.example.json",
+    "serve": "node build/serve.mjs"
+  },
+  "engines": { "node": ">=18" }
+}

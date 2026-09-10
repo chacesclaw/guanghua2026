@@ -1,0 +1,20 @@
+/* 主题变量由 npm run build 从 config.json 生成 */
+@import "theme.wxss";
+
+page {
+  --red-deep: #7d1c26;
+  --red: #a8323d;
+  --red-bright: #a8323d;
+  --gold: #b8860b;
+  --gold-soft: #c9a24b;
+  --paper: #f7f2e7;
+  --paper-card: #fffdf8;
+  --ink: #2b2420;
+  --ink-soft: #6b5f55;
+  --line: #e4d9c4;
+
+  background: #f7f2e7;
+  color: #2b2420;
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif;
+  line-height: 1.5;
+}

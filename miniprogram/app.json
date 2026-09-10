@@ -1,0 +1,14 @@
+{
+  "pages": [
+    "pages/index/index"
+  ],
+  "window": {
+    "navigationBarBackgroundColor": "#7d1c26",
+    "navigationBarTitleText": "课表",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#f7f2e7",
+    "backgroundTextStyle": "light"
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}

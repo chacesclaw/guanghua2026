@@ -1,0 +1,10 @@
+node_modules/
+dist/
+site/dist/
+.DS_Store
+*.log
+
+# 你自己的真实数据与配置，默认不入库。
+# 想用 git 管理自己的课表，请自建私有仓库，或删掉下面两行并确认仓库是私有的。
+config.json
+data/schedule.json

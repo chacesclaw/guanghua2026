@@ -1,0 +1,254 @@
+<view class="page">
+
+  <!-- 状态栏/胶囊按钮所在安全区：常驻深红底色，不随滚动消失，避免露出浅色页面背景 -->
+  <view class="status-strip" style="height:{{navClearance}}px"></view>
+
+  <!-- 自定义导航栏：返回按钮，与胶囊按钮同一水平带对齐 -->
+  <view class="nav-back" style="top:{{navBackTop}}px; width:{{navBackSize}}px; height:{{navBackSize}}px;" bindtap="onNavBack">
+    <view class="nav-back-arrow"></view>
+  </view>
+
+  <!-- 顶部标题 -->
+  <view class="header" style="padding-top: calc({{navClearance}}px + 20rpx)">
+    <view class="badge-row">
+      <image wx:if="{{cfg.logo}}" class="emblem" src="{{cfg.logo}}" mode="aspectFit"></image>
+      <view class="badge-text">
+        <view class="badge-en" wx:if="{{cfg.schoolEn}}">{{cfg.schoolEn}}</view>
+        <view class="badge-cn">{{cfg.school}}{{cfg.className ? ' · ' : ''}}{{cfg.className}}</view>
+      </view>
+    </view>
+    <view class="header-title">{{cfg.title}}</view>
+    <view class="header-meta" wx:if="{{cfg.termRange}}">{{cfg.termRange}}</view>
+    <view class="header-note" wx:if="{{cfg.disclaimer}}">{{cfg.disclaimer}}</view>
+  </view>
+
+  <!-- 页签栏（上滑吸顶，吸在安全区下方，不被状态栏/灵动岛/胶囊遮挡） -->
+  <view class="tabbar-sticky" style="top:{{navClearance}}px">
+    <view class="tabbar-row">
+      <!-- 常驻页签 -->
+      <view class="tabbar-pinned">
+        <view
+          wx:for="{{pinnedTabs}}"
+          wx:key="key"
+          class="tab tab-pin {{view === item.key ? 'tab-active' : ''}}"
+          data-key="{{item.key}}"
+          bindtap="onTapPinned">
+          <view class="pin-ico ico-{{item.icon}}{{view === item.key ? '-on' : ''}}"></view>
+          <view class="pin-label">{{item.d1}}</view>
+        </view>
+      </view>
+      <!-- 可滑动日期页签 -->
+      <scroll-view class="tabbar" scroll-x enable-flex show-scrollbar="{{false}}"
+        scroll-with-animation scroll-left="{{tabScrollLeft}}">
+        <view class="tabbar-inner">
+        <view
+          wx:for="{{tabs}}"
+          wx:key="id"
+          id="{{item.id}}"
+          class="tab {{item.isAll ? 'tab-meta' : ''}} {{item.isLater ? 'tab-later' : ''}} {{(item.isAll && view === 'all') || (!item.isAll && view === 'day' && curIdx === item.idx) ? 'tab-active' : ''}}"
+          data-idx="{{item.idx}}"
+          bindtap="onTapTab">
+          <view class="tab-d1">{{item.d1}}</view>
+          <view class="tab-d2">{{item.d2}}</view>
+          <view class="tab-cnt">{{item.count}} 项</view>
+        </view>
+        </view>
+      </scroll-view>
+    </view>
+  </view>
+
+  <!-- 当前视图标题 -->
+  <view class="day-heading">
+    <text class="day-big">{{dayBig}}</text>
+    <text class="day-week">{{dayWeek}}</text>
+  </view>
+  <view class="day-note" wx:if="{{dayNote}}">{{dayNote}}</view>
+
+  <!-- ============ 单日课表 ============ -->
+  <view class="timeline timeline-line" wx:if="{{view === 'day'}}">
+    <view class="slot" wx:for="{{groups}}" wx:key="time" wx:for-item="group">
+      <view class="slot-time">{{group.time}}</view>
+      <view class="parallel-hint" wx:if="{{group.isPair}}">⚠️ 同一时段安排两项内容，请留意分组 / 分类通知</view>
+      <view wx:for="{{group.items}}" wx:key="title" wx:for-item="ev"
+        class="card {{ev.dim ? 'card-dim' : ''}}" style="border-left-color:{{ev.catColor}}">
+        <view class="card-top">
+          <text class="card-title">{{ev.title}}</text>
+          <text class="cat-tag" style="background:{{ev.catColor}}">{{ev.catLabel}}</text>
+        </view>
+        <view class="card-sub" wx:if="{{ev.sub}}">{{ev.sub}}</view>
+        <view class="intl-badge" wx:if="{{ev.intl}}">🌐 港澳台 / 留学生专场</view>
+        <view class="card-note" wx:if="{{ev.note}}">📌 {{ev.note}}</view>
+        <view class="card-foot">
+          <view class="foot-item" wx:if="{{ev.hasWho}}">
+            <text class="foot-ic">👤</text>
+            <block wx:for="{{ev.teachers}}" wx:key="name" wx:for-item="t">
+              <text class="{{t.hasInfo ? 'teacher-link' : ''}}" data-name="{{t.name}}"
+                bindtap="{{t.hasInfo ? 'onTapTeacher' : ''}}">{{t.name}}</text>
+              <text wx:if="{{index < ev.teachers.length - 1}}">、</text>
+            </block>
+          </view>
+          <view class="foot-item" wx:if="{{ev.where}}"><text class="foot-ic">📍</text>{{ev.where}}</view>
+        </view>
+        <view class="lecture-link" wx:for="{{ev.links}}" wx:key="url" wx:for-item="lk" data-url="{{lk.url}}" data-title="{{lk.label}}" data-event="{{ev.title}}" catchtap="onOpenLecture">{{lk.icon}} {{lk.label}} →</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- ============ 全部日期 ============ -->
+  <view class="timeline" wx:if="{{view === 'all'}}">
+    <view class="all-day-block" wx:for="{{allDays}}" wx:key="big" wx:for-item="day">
+      <view class="all-day-title">{{day.big}} <text class="all-day-week">{{day.week}}</text></view>
+      <view class="day-note" wx:if="{{day.note}}" style="padding-left:0;">{{day.note}}</view>
+      <view class="timeline-inner">
+      <view class="slot" wx:for="{{day.groups}}" wx:key="time" wx:for-item="group">
+        <view class="slot-time">{{group.time}}</view>
+        <view wx:for="{{group.items}}" wx:key="title" wx:for-item="ev"
+          class="card {{ev.dim ? 'card-dim' : ''}}" style="border-left-color:{{ev.catColor}}">
+          <view class="card-top">
+            <text class="card-title">{{ev.title}}</text>
+            <text class="cat-tag" style="background:{{ev.catColor}}">{{ev.catLabel}}</text>
+          </view>
+          <view class="card-sub" wx:if="{{ev.sub}}">{{ev.sub}}</view>
+          <view class="card-foot">
+            <view class="foot-item" wx:if="{{ev.hasWho}}">
+              <text class="foot-ic">👤</text>
+              <block wx:for="{{ev.teachers}}" wx:key="name" wx:for-item="t">
+                <text class="{{t.hasInfo ? 'teacher-link' : ''}}" data-name="{{t.name}}"
+                  bindtap="{{t.hasInfo ? 'onTapTeacher' : ''}}">{{t.name}}</text>
+                <text wx:if="{{index < ev.teachers.length - 1}}">、</text>
+              </block>
+            </view>
+            <view class="foot-item" wx:if="{{ev.where}}"><text class="foot-ic">📍</text>{{ev.where}}</view>
+          </view>
+          <view class="lecture-link" wx:for="{{ev.links}}" wx:key="url" wx:for-item="lk" data-url="{{lk.url}}" data-title="{{lk.label}}" data-event="{{ev.title}}" catchtap="onOpenLecture">{{lk.icon}} {{lk.label}} →</view>
+        </view>
+      </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- ============ 学期日历总览 ============ -->
+  <view class="sem-wrap" wx:if="{{view === 'semester'}}">
+    <view class="sem-legend">
+      <view class="sem-dot sem-dot-has"></view><text>有课程可点</text>
+      <view class="sem-dot"></view><text>无课程</text>
+      <view class="sem-dot sem-dot-link"></view><text>含讲义/照片等附件</text>
+      <view class="sem-today-btn" wx:if="{{showTodayBtn}}" bindtap="onTapTodayBtn">📍 回到今天</view>
+    </view>
+    <view class="sem-month" id="{{mon.ymId}}" wx:for="{{months}}" wx:key="title" wx:for-item="mon">
+      <view class="sem-month-title">{{mon.title}}</view>
+      <view class="sem-weekdays">
+        <text>一</text><text>二</text><text>三</text><text>四</text><text>五</text><text>六</text><text>日</text>
+      </view>
+      <view class="sem-grid">
+        <view wx:for="{{mon.cells}}" wx:key="key" wx:for-item="cell"
+          class="sem-cell {{cell.empty ? 'sem-empty' : ''}}"
+          data-idx="{{cell.idx}}" bindtap="onTapSemCell">
+          <view class="sem-cell-inner {{cell.has ? 'sem-has' : ''}} {{cell.active ? 'sem-active' : ''}} {{cell.hasLink ? 'sem-link' : ''}} {{cell.isToday ? 'sem-today' : ''}} {{cell.isToday && todayPulse ? 'sem-today-pulse' : ''}}">{{cell.label}}</view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- ============ 订阅日历 ============ -->
+  <view class="cal-wrap" wx:if="{{view === 'cal'}}">
+    <view class="cal-card">
+      <view class="cal-h3">📅 订阅本页课表到你的日历</view>
+      <view class="cal-p">订阅一次，以后课表有任何更新会自动同步到日历里，不用重复导入。<text class="cal-strong">iPhone 直接跟着下面 4 步走就行：</text></view>
+
+      <view class="cal-method">
+        <view class="cal-method-h"><text class="cal-badge cal-badge-best">iPhone / iPad</text>CalDAV 账户，4 步搞定</view>
+        <view class="cal-li">1. 「设置」→「通用」→「日历」→「账户」→「添加账户」</view>
+        <view class="cal-li">2. 选择「其他」→「添加 CalDAV 账户」</view>
+        <view class="cal-li">3. 依次填入下面三项，描述随便填：</view>
+        <view class="cal-kv"><text class="cal-k">服务器</text><text class="cal-v">{{caldavServer}}</text></view>
+        <view class="cal-kv"><text class="cal-k">用户名</text><text class="cal-v">{{caldavUser}}</text></view>
+        <view class="cal-kv"><text class="cal-k">密码</text><text class="cal-v">{{caldavPass}}</text></view>
+        <view class="cal-btn" bindtap="onCopyCaldav">复制 CalDAV 信息</view>
+        <view class="cal-tip">服务器一栏只填 {{caldavServer}}，前面不要加 https://，后面也不要加路径。</view>
+        <view class="cal-li" style="margin-top:12rpx;">4. 点「下一步」保存。如果日历里看不到课表，打开「日历」App → 点底部「日历」→ 把「{{cfg.calName}}」勾上</view>
+      </view>
+
+      <view class="cal-collapse" bindtap="onToggleCalOthers">
+        <text class="cal-collapse-arrow {{calOthersOpen ? 'open' : ''}}">▸</text>
+        <text>用的不是 iPhone？点开看 Mac / 安卓 / 鸿蒙</text>
+      </view>
+      <view class="cal-collapse-body" wx:if="{{calOthersOpen}}">
+        <view class="cal-plat">
+          <view class="cal-h4">Mac（日历 App）</view>
+          <view class="cal-li">CalDAV：菜单栏「日历」→「添加账户」→「其他 CalDAV 账户」，填上面三项信息</view>
+          <view class="cal-li">或用 ICS：菜单栏「文件」→「新建日历订阅…」，粘贴链接后点「订阅」</view>
+        </view>
+        <view class="cal-plat">
+          <view class="cal-h4">安卓手机</view>
+          <view class="cal-li">1. 先找 CalDAV：日历设置里如果有「添加账户」「CalDAV」相关入口，填上面三项信息即可，效果最好</view>
+          <view class="cal-li">2. 找不到的，也可以装一个支持 CalDAV 的第三方日历 App（如 DAVx⁵）</view>
+          <view class="cal-tip">🔸 鸿蒙 / 华为：自带日历不支持网址订阅，但支持 CalDAV，用上面同一套服务器/用户名/密码在「日历」→「添加」→「添加 CalDAV 日历」里填一下即可。</view>
+        </view>
+      </view>
+
+      <view class="cal-collapse" bindtap="onToggleCalIcs">
+        <text class="cal-collapse-arrow {{calIcsOpen ? 'open' : ''}}">▸</text>
+        <text>不方便用 CalDAV？也可以用传统 ICS 订阅链接</text>
+      </view>
+      <view class="cal-collapse-body" wx:if="{{calIcsOpen}}">
+        <view class="cal-method-p" style="margin-top:0;">兼容性最广，但刷新间隔由各平台自己决定（通常几小时到一天），不推荐。</view>
+        <view class="cal-link">{{icsUrl}}</view>
+        <view class="cal-btn" bindtap="onCopyIcs">复制订阅链接</view>
+        <view class="cal-tip">iPhone：「设置」→「日历」→「账户」→「添加账户」→「其他」→「添加已订阅的日历」，粘贴链接；若提示 SSL 连接失败，改用 Safari 直接打开链接，弹出提示后点「添加全部」。</view>
+      </view>
+    </view>
+
+    <view class="cal-card">
+      <view class="cal-h3">长时间没有自动更新？</view>
+      <view class="cal-p">订阅日历不是实时同步的，各平台按自己的节奏定期拉取。可以手动催一下：</view>
+      <view class="cal-li">iPhone：打开「日历」App，点右下角图标进入日历列表页，手指从上往下拉一下</view>
+      <view class="cal-li">Mac：「日历」App → 菜单栏「显示」→「刷新日历」</view>
+    </view>
+  </view>
+
+  <!-- ============ 答疑与更新记录 ============ -->
+  <view class="faq-wrap" wx:if="{{view === 'faq'}}">
+    <view class="section-title">更新记录</view>
+    <view class="log-entry" wx:for="{{changelog}}" wx:key="date" wx:for-item="entry">
+      <view class="log-date">{{entry.date}}</view>
+      <view class="log-item" wx:for="{{entry.changes}}" wx:key="text" wx:for-item="c">
+        <text class="log-tag log-{{c.type}}">{{c.label}}</text>
+        <text class="log-text">{{c.text}}</text>
+      </view>
+      <view class="log-source" wx:if="{{entry.source}}">{{entry.source}}</view>
+    </view>
+
+  </view>
+
+  <!-- 前后翻页（仅单日视图） -->
+  <view class="nav-arrows" wx:if="{{view === 'day'}}">
+    <view class="nav-btn {{hasPrev ? '' : 'nav-disabled'}}" bindtap="onPrevDay">← 前一天</view>
+    <view class="nav-btn {{hasNext ? '' : 'nav-disabled'}}" bindtap="onNextDay">后一天 →</view>
+  </view>
+
+  <view class="footer">
+    <view>数据与网页版同源，下拉可刷新</view>
+    <view class="footer-upd" wx:if="{{lastUpdated}}">最后更新：{{lastUpdated}}</view>
+  </view>
+
+</view>
+
+<!-- 老师简介弹窗 -->
+<view class="modal-mask" wx:if="{{teacherModal}}" bindtap="onCloseTeacher">
+  <view class="modal-box" catchtap="noop">
+    <view class="modal-close" bindtap="onCloseTeacher"></view>
+    <view class="tm-name">{{teacherModal.name}}</view>
+    <view class="tm-title">{{teacherModal.title}}</view>
+    <view class="tm-row"><text class="tm-label">所属院系/机构</text><text>{{teacherModal.dept}}</text></view>
+    <view class="tm-row"><text class="tm-label">研究方向</text><text>{{teacherModal.focus}}</text></view>
+    <view class="tm-bio">{{teacherModal.bio}}</view>
+    <view class="tm-source">
+      <text>信息来源：</text>
+      <text class="{{teacherModal.source ? 'tm-link' : ''}}"
+        catchtap="{{teacherModal.source ? 'onCopySource' : ''}}">{{teacherModal.sourceLabel}}</text>
+    </view>
+    <view class="tm-linkhint" wx:if="{{teacherModal.source}}">点击可复制链接</view>
+    <view class="tm-disclaimer">此简介整理自公开资料，可能存在滞后或遗漏，请以老师本人或学校最新公开信息为准。</view>
+  </view>
+</view>

@@ -1,0 +1,1386 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>{{PAGE_TITLE}}</title>
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-title" content="{{SHORT_NAME}}">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="{{THEME_COLOR}}">
+<style>
+<style>
+  :root{
+    --red-deep:#7d1c26;
+    --red:#8c1d2b;
+    --red-bright:#a8232f;
+    --gold:#b8860b;
+    --gold-soft:#c9a24b;
+    --paper:#f7f2e7;
+    --paper-card:#fffdf8;
+    --ink:#2b2420;
+    --ink-soft:#6b5f55;
+    --line:#e4d9c4;
+
+    --c-checkin:#5b6472;
+    --c-test:#2f6f74;
+    --c-edu:#c07a2c;
+    --c-required:#8c1d2b;
+    --c-elective:#b8860b;
+    --c-china:#b5495b;
+    --c-ceremony:#a8842a;
+    --c-party:#6b3fa0;
+    --c-class:#2f6f5e;
+    --c-misc:#8a7a68;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(ellipse at top, rgba(140,29,43,0.06), transparent 60%),
+      var(--paper);
+    color:var(--ink);
+    font-family:-apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Hiragino Sans GB", sans-serif;
+    line-height:1.5;
+    min-height:100vh;
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+  .serif{ font-family:"Songti SC", "STSong", "SimSun", serif; }
+
+  /* ---------- Header ---------- */
+  header{
+    position:relative;
+    background: linear-gradient(160deg, var(--red-deep) 0%, var(--red) 55%, var(--red-bright) 100%);
+    color:#fbf3e3;
+    padding: calc(34px + env(safe-area-inset-top)) 20px 26px;
+    overflow:hidden;
+  }
+  header::before{
+    content:"";
+    position:absolute; inset:0;
+    background-image:
+      repeating-linear-gradient(115deg, rgba(255,255,255,0.035) 0 2px, transparent 2px 34px);
+    pointer-events:none;
+  }
+  header::after{
+    content:"";
+    position:absolute; right:-60px; top:-60px; width:260px; height:260px; border-radius:50%;
+    border:1.5px solid rgba(255,255,255,0.12);
+    pointer-events:none;
+  }
+  .header-inner{ max-width:980px; margin:0 auto; position:relative; }
+  .header-inner::after{
+    content:"";
+    position:absolute; right:-10px; top:-6px;
+    width:200px; height:227px;
+    background-image: var(--watermark-img, none);
+    background-repeat:no-repeat; background-size:contain;
+    opacity:0.1;
+    pointer-events:none;
+  }
+  .badge-row{ display:flex; align-items:center; gap:12px; margin-bottom:18px; }
+  .emblem{
+    width:44px; height:44px;
+    flex-shrink:0;
+    object-fit:contain;
+    display:block;
+  }
+  .badge-text{ font-size:12.5px; letter-spacing:2.5px; color:#e9cfa0; text-transform:uppercase; }
+  .badge-text b{ display:block; font-size:14px; letter-spacing:1px; color:#fbf3e3; margin-top:2px; font-weight:600;}
+  h1{
+    font-size:clamp(24px, 4.6vw, 38px);
+    margin:0 0 10px;
+    font-weight:900;
+    letter-spacing:1px;
+    text-shadow:0 2px 10px rgba(0,0,0,0.15);
+  }
+  .subtitle{ font-size:14.5px; color:#f1dcc0; max-width:680px; margin:0 0 16px; }
+  .meta-row{ display:flex; flex-wrap:wrap; gap:10px 22px; font-size:13px; color:#f6e6cb; }
+  .meta-row span{ display:flex; align-items:center; gap:6px; }
+  .meta-row .dot{ width:6px; height:6px; border-radius:50%; background:var(--gold-soft); display:inline-block; }
+
+  /* ---------- Disclaimer bar (inside header) ---------- */
+  .header-disclaimer{
+    margin-top:16px;
+    display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:6px 16px;
+    background:rgba(0,0,0,0.18);
+    border:1px solid rgba(255,255,255,0.14);
+    border-left:3px solid var(--gold-soft);
+    border-radius:10px;
+    padding:9px 13px;
+    font-size:12px;
+    color:#f3e6c9;
+  }
+  .header-disclaimer b{ color:#fff; font-weight:700; }
+  .header-disclaimer .upd{ white-space:nowrap; color:#e9cfa0; }
+  .orig-link{ color:var(--gold-soft); font-weight:700; text-decoration:underline; white-space:nowrap; cursor:pointer; }
+  .orig-link:hover{ color:#fff; }
+
+  /* ---------- Lightbox ---------- */
+  .lightbox{
+    display:none; position:fixed; inset:0; background:rgba(20,10,8,0.82);
+    z-index:100; align-items:center; justify-content:center; padding:20px;
+    overflow:auto;
+  }
+  .lightbox.open{ display:flex; }
+  .lightbox-inner{
+    background:var(--paper-card); border-radius:16px; max-width:960px; width:100%;
+    padding:16px; position:relative; box-shadow:0 20px 60px rgba(0,0,0,0.4);
+  }
+  .lightbox-close{
+    position:absolute; top:10px; right:10px; width:32px; height:32px; border-radius:50%;
+    border:1px solid var(--line); background:#fff; cursor:pointer; font-size:15px; color:var(--ink-soft);
+    line-height:1;
+  }
+  .lightbox-hint{ font-size:11.5px; color:var(--ink-soft); text-align:center; margin-top:14px; }
+  .xls-dl{
+    display:flex; align-items:center; gap:12px;
+    background:#fbf8f2; border:1px solid var(--line); border-radius:10px;
+    padding:12px 14px; margin-bottom:10px; text-decoration:none; color:var(--ink);
+    transition:border-color .15s ease, background .15s ease;
+  }
+  .xls-dl:hover{ border-color:var(--gold-soft); background:#fbf1da; }
+  .xls-ic{ font-size:22px; flex-shrink:0; }
+  .xls-txt{ font-size:12.5px; color:var(--ink-soft); line-height:1.5; flex:1; }
+  .xls-txt b{ color:var(--ink); font-size:13.5px; }
+  .xls-arrow{ font-size:16px; color:var(--gold); flex-shrink:0; }
+  .notice-card{
+    background:#fbf8f2; border:1px solid var(--line); border-radius:10px;
+    padding:12px 14px; margin-bottom:12px;
+  }
+  .notice-label{ font-size:11px; font-weight:700; color:var(--gold); margin-bottom:6px; }
+  .notice-subject{ font-size:13.5px; font-weight:700; color:var(--ink); line-height:1.5; margin-bottom:8px; }
+  .notice-meta{ font-size:12px; color:var(--ink-soft); line-height:1.6; }
+  @media (max-width:640px){
+    .lightbox{ padding:10px; }
+    .lightbox-inner{ padding:12px; }
+  }
+
+  /* ---------- Legend / filter ---------- */
+  .legend-wrap{
+    max-width:980px; margin:18px auto 0; padding:0 20px;
+  }
+  .legend{
+    display:flex; flex-wrap:wrap; gap:8px;
+    background:var(--paper-card);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:12px 14px;
+    box-shadow:0 4px 18px rgba(120,60,20,0.06);
+    position:relative;
+    z-index:3;
+  }
+  .chip{
+    display:inline-flex; align-items:center; gap:6px;
+    padding:6px 12px 6px 9px;
+    border-radius:999px;
+    font-size:12.5px; font-weight:600;
+    border:1px solid transparent;
+    cursor:pointer;
+    background:#f2ece0;
+    color:var(--ink-soft);
+    transition:all .15s ease;
+    user-select:none;
+  }
+  .chip .sw{ width:9px; height:9px; border-radius:50%; flex-shrink:0; }
+  .chip.active{ background:var(--c, var(--red)); color:#fff; box-shadow:0 3px 10px rgba(0,0,0,0.15); }
+  .chip.dim{ opacity:.4; }
+
+  /* ---------- Advanced filter ---------- */
+  .advfilter-wrap{ max-width:980px; margin:14px auto 0; padding:0 20px; }
+  .advfilter{
+    background:var(--paper-card);
+    border:1px solid var(--line);
+    border-radius:14px;
+    box-shadow:0 3px 14px rgba(120,60,20,0.05);
+    padding:0 16px;
+  }
+  .advfilter summary{
+    cursor:pointer; user-select:none; list-style:none;
+    padding:13px 0; display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+  }
+  .advfilter summary::-webkit-details-marker{ display:none; }
+  .advfilter-title{ font-size:13.5px; font-weight:800; color:var(--red-deep); display:flex; align-items:center; gap:6px; }
+  .advfilter-sub{ font-size:11.5px; color:var(--ink-soft); }
+  .advfilter-arrow{ margin-left:auto; color:var(--gold); flex-shrink:0; transition:transform .2s ease; }
+  .advfilter:not([open]) .advfilter-arrow{ transform:rotate(-90deg); }
+  .advfilter-grid{
+    display:flex; flex-wrap:wrap; gap:12px 14px; align-items:end;
+    border-top:1px dashed var(--line); margin-top:0; padding:14px 0 16px;
+  }
+  .af-field{ display:flex; flex-direction:column; gap:5px; font-size:11px; color:var(--ink-soft); font-weight:700; letter-spacing:.5px; }
+  .af-field select{
+    font-size:12.5px; padding:8px 30px 8px 11px; border-radius:9px; border:1px solid var(--line);
+    background:#fbf8f2 url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="6"><path d="M0 0l5 6 5-6z" fill="%23b8860b"/></svg>') no-repeat right 11px center;
+    color:var(--ink); min-width:150px; max-width:230px; cursor:pointer;
+    appearance:none; -webkit-appearance:none;
+    transition:border-color .15s ease;
+  }
+  .af-field select:hover, .af-field select:focus{ outline:none; border-color:var(--gold-soft); }
+  .advfilter-grid button{
+    font-size:12.5px; padding:9px 16px; border-radius:9px; border:1.5px solid var(--red-deep);
+    background:transparent; color:var(--red-deep); cursor:pointer; font-weight:700;
+    transition:all .15s ease;
+  }
+  .advfilter-grid button:hover{ background:var(--red-deep); color:#fbf3e3; }
+
+  /* ---------- Day tabs ---------- */
+  .tabbar-sticky{
+    position:sticky; top:0; z-index:20;
+    background:linear-gradient(180deg, var(--paper) 55%, rgba(247,242,231,0.55) 82%, rgba(247,242,231,0) 100%);
+    padding: 14px 0 2px;
+    backdrop-filter:blur(6px);
+    transition:padding-top .15s ease;
+  }
+  .tabbar-sticky.is-stuck{
+    padding-top: calc(14px + env(safe-area-inset-top));
+  }
+  .tabbar-sentinel{ height:1px; }
+  .tabbar-row{
+    max-width:980px; margin:0 auto; padding:6px 20px 4px;
+    display:flex; align-items:flex-start; gap:8px;
+  }
+  .tabbar-pinned{ flex:0 0 auto; display:flex; gap:8px; padding:6px 0 8px; }
+  .tabbar{
+    flex:1; min-width:0;
+    display:flex; gap:8px; overflow-x:auto; overflow-y:visible; scroll-behavior:smooth;
+    scrollbar-width:none; padding:6px 0 14px;
+    -webkit-mask-image: linear-gradient(to right, transparent 0, #000 16px, #000 calc(100% - 16px), transparent 100%);
+    mask-image: linear-gradient(to right, transparent 0, #000 16px, #000 calc(100% - 16px), transparent 100%);
+  }
+  .tabbar::-webkit-scrollbar{ display:none; }
+  .tab{
+    flex:0 0 auto;
+    min-width:76px;
+    text-align:center;
+    background:var(--paper-card);
+    border:1.5px solid var(--line);
+    border-radius:14px;
+    padding:9px 12px 8px;
+    cursor:pointer;
+    transition:all .18s ease;
+  }
+  .tab .d1{ font-family:"Songti SC",serif; font-weight:700; font-size:16px; color:var(--red); line-height:1.15;}
+  .tab .d1 .tab-icon{ vertical-align:-2px; margin-right:2px; }
+  .tab .d2{ font-size:11px; color:var(--ink-soft); margin-top:2px; }
+  .tab .cnt{ font-size:10px; color:var(--gold); margin-top:3px; font-weight:600; }
+  .tab.active{
+    background:linear-gradient(160deg, var(--red-deep), var(--red-bright));
+    border-color:var(--red-deep);
+    box-shadow:0 4px 10px rgba(140,29,43,0.22);
+    transform:translateY(-2px);
+  }
+  .tab.active .d1{ color:#fbf3e3; }
+  .tab.active .d2{ color:#f1dcc0; }
+  .tab.active .cnt{ color:var(--gold-soft); }
+  .tab.laterTab{ border-style:dashed; }
+  .tab.metaTab{ border-style:solid; border-color:#c7bda3; width:80px; min-width:80px; }
+
+  .dp-dot{ width:8px; height:8px; border-radius:50%; background:#f2ece0; display:inline-block; margin-right:4px; }
+  .dp-dot.has{ background:var(--gold-soft); }
+  .dp-dot.link{ background:var(--red-deep); }
+
+  /* ---------- Semester calendar overview ---------- */
+  .sem-legend{ display:flex; gap:14px; margin:2px 2px 16px; font-size:11.5px; color:var(--ink-soft); align-items:center; }
+  .sem-months{ display:grid; grid-template-columns:repeat(3, 1fr); gap:16px; }
+  @media (max-width:900px){ .sem-months{ grid-template-columns:repeat(2, 1fr); } }
+  @media (max-width:560px){ .sem-months{ grid-template-columns:1fr; } }
+  .sem-month{
+    background:var(--paper-card); border:1px solid var(--line); border-radius:12px;
+    padding:12px; box-shadow:0 3px 12px rgba(90,50,20,0.05);
+  }
+  .sem-month-title{ text-align:center; font-weight:700; color:var(--red-deep); font-size:14px; margin-bottom:8px; }
+  .sem-weekdays{ display:grid; grid-template-columns:repeat(7,1fr); text-align:center; font-size:10px; color:var(--ink-soft); margin-bottom:3px; }
+  .sem-grid{ display:grid; grid-template-columns:repeat(7,1fr); gap:3px; }
+  .sem-cell{
+    aspect-ratio:1; display:flex; align-items:center; justify-content:center;
+    font-size:11px; border-radius:6px; color:#c7bda3; position:relative;
+  }
+  .sem-cell.has{ background:#f2ece0; color:var(--ink); font-weight:700; cursor:pointer; touch-action:manipulation; }
+  .sem-cell.has:hover, .sem-cell.has:active{ background:var(--gold-soft); color:#fff; }
+  .sem-cell.active{ background:var(--red-deep); color:#fff; }
+  .sem-cell.empty{ visibility:hidden; }
+  .sem-cell.has-link::after{
+    content:''; position:absolute; top:3px; right:3px;
+    width:5px; height:5px; border-radius:50%; background:var(--red-deep);
+  }
+  .sem-cell.active.has-link::after{ background:#fff; }
+  .sem-cell.today{ box-shadow:inset 0 0 0 2px var(--red-deep); font-weight:800; }
+  .sem-cell.today.active{ box-shadow:inset 0 0 0 2px #fff; }
+  @keyframes semTodayPulse{
+    0%{ box-shadow:inset 0 0 0 2px var(--red-deep), 0 0 0 0 rgba(125,28,38,.45); }
+    70%{ box-shadow:inset 0 0 0 2px var(--red-deep), 0 0 0 10px rgba(125,28,38,0); }
+    100%{ box-shadow:inset 0 0 0 2px var(--red-deep), 0 0 0 0 rgba(125,28,38,0); }
+  }
+  .sem-cell.today-pulse{ animation:semTodayPulse 1s ease-out 2; }
+  .sem-legend{ position:relative; }
+  .sem-today-btn{
+    margin-left:auto; display:inline-flex; align-items:center; gap:5px;
+    font-size:12px; font-weight:700; color:#fff; cursor:pointer;
+    background:var(--red-deep); border:none; border-radius:999px;
+    padding:6px 14px; box-shadow:0 4px 10px -6px rgba(125,28,38,.9);
+    transition:filter .15s ease, transform .12s ease;
+  }
+  .sem-today-btn:hover{ filter:brightness(1.12); }
+  .sem-today-btn:active{ transform:translateY(1px); }
+  @media (max-width:560px){ .sem-legend{ flex-wrap:wrap; } .sem-today-btn{ margin-left:0; order:99; width:100%; justify-content:center; margin-top:6px; } }
+
+  /* ---------- Main timeline ---------- */
+  main{ max-width:980px; margin:0 auto; padding:6px 20px 60px; }
+  .day-heading{
+    display:flex; align-items:baseline; gap:12px; margin:18px 2px 16px; flex-wrap:wrap;
+  }
+  .day-heading .big{ font-family:"Songti SC",serif; font-weight:900; font-size:25px; color:var(--red-deep); }
+  .day-heading .week{ font-size:14px; color:var(--ink-soft); background:#efe2c4; padding:3px 10px; border-radius:999px; }
+  .day-note{ font-size:12.5px; color:var(--ink-soft); margin:-8px 2px 18px; }
+
+  .timeline{ position:relative; padding-left:26px; }
+  .timeline::before{
+    content:""; position:absolute; left:6px; top:6px; bottom:6px; width:2px;
+    background:linear-gradient(var(--line), var(--line));
+    background-image:repeating-linear-gradient(180deg, var(--gold-soft) 0 6px, transparent 6px 12px);
+  }
+  .slot{ position:relative; margin-bottom:22px; }
+  .slot-time{
+    font-family:"Songti SC",serif;
+    font-weight:700; font-size:13.5px; color:var(--red);
+    margin-bottom:8px;
+    display:flex; align-items:center; gap:8px;
+  }
+  .slot-time::before{
+    content:""; position:absolute; left:-26px; top:3px; width:11px; height:11px; border-radius:50%;
+    background:var(--paper); border:2.5px solid var(--red); box-shadow:0 0 0 3px var(--paper);
+  }
+  .cards{ display:flex; flex-direction:column; gap:10px; }
+  .cards.pair{ flex-direction:row; flex-wrap:wrap; }
+  .cards.pair .card{ flex:1 1 260px; }
+
+  .card{
+    background:var(--paper-card);
+    border:1px solid var(--line);
+    border-left:5px solid var(--cat-color, var(--red));
+    border-radius:12px;
+    padding:13px 15px;
+    box-shadow:0 3px 12px rgba(90,50,20,0.05);
+    transition:transform .15s ease, box-shadow .15s ease, opacity .15s ease;
+  }
+  .card:hover{ transform:translateY(-2px); box-shadow:0 8px 20px rgba(90,50,20,0.1); }
+  .card.dim{ opacity:.28; }
+  .card.intl{ border-left-style:dashed; }
+  .card-top{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:5px;}
+  .card-title{ font-weight:700; font-size:15px; color:var(--ink); }
+  .cat-tag{
+    font-size:10.5px; font-weight:700; color:#fff; background:var(--cat-color, var(--red));
+    padding:2px 9px; border-radius:999px; white-space:nowrap; flex-shrink:0;
+  }
+  .card-sub{ font-size:12.5px; color:var(--ink-soft); margin-bottom:7px; }
+  .card-foot{ display:flex; flex-wrap:wrap; gap:8px 16px; font-size:12px; color:var(--ink-soft); }
+  .card-foot span{ display:inline-flex; align-items:center; gap:5px; }
+  .card-foot .ic{ opacity:.7; }
+  .intl-badge{
+    display:inline-flex; align-items:center; gap:4px;
+    font-size:10.5px; font-weight:700; color:#0f5c66;
+    background:#e3f4f2; border:1px dashed #4fa8a0;
+    padding:2px 8px; border-radius:999px; margin-bottom:7px;
+  }
+  .card-note{
+    font-size:11.5px; color:#8a5a12; background:#fbf1da; border:1px dashed var(--gold-soft);
+    padding:5px 9px; border-radius:8px; margin-bottom:7px; display:block;
+  }
+  .card-link{
+    display:flex; align-items:center; gap:7px;
+    font-size:12px; font-weight:700; text-decoration:none;
+    color:#fff; background:linear-gradient(135deg, var(--red-deep), var(--red-bright));
+    padding:8px 12px; border-radius:8px; margin-bottom:8px;
+    box-shadow:0 6px 14px -9px rgba(125,28,38,.9);
+    transition:filter .18s ease, transform .12s ease;
+  }
+  .card-link:hover{ filter:brightness(1.12); }
+  .card-link:active{ transform:translateY(1px); }
+  .card-link .ic-emoji{ font-size:13px; flex:none; line-height:1; opacity:.95; }
+  .card-link .arw{ margin-left:auto; opacity:.85; font-weight:400; font-size:15px; line-height:1; }
+
+  .teacher-name{ cursor:default; }
+  .teacher-name.has-info{
+    cursor:pointer; color:var(--red-deep); font-weight:700;
+    text-decoration:underline dotted; text-underline-offset:2px;
+  }
+  .teacher-name.has-info:hover{ color:var(--red-bright); }
+
+  /* ---------- Teacher modal ---------- */
+  .tm-name{ font-size:19px; font-weight:800; color:var(--red-deep); margin:2px 30px 2px 0; }
+  .tm-title{ font-size:13px; color:var(--gold); font-weight:700; margin-bottom:12px; }
+  .tm-row{ font-size:12.5px; color:var(--ink); margin-bottom:6px; display:flex; gap:8px; }
+  .tm-label{ flex:0 0 84px; color:var(--ink-soft); font-weight:700; }
+  .tm-bio{ font-size:13px; color:var(--ink-soft); line-height:1.7; margin:10px 0; padding-top:10px; border-top:1px dashed var(--line); }
+  .tm-source{ font-size:11.5px; color:var(--ink-soft); margin-top:6px; }
+  .tm-source a{ color:var(--red); }
+  .tm-disclaimer{ font-size:11px; color:var(--ink-soft); margin-top:12px; padding-top:10px; border-top:1px solid var(--line); line-height:1.6; }
+
+  .parallel-hint{
+    font-size:11.5px; color:var(--gold); background:#fbf1da; border:1px dashed var(--gold-soft);
+    padding:5px 10px; border-radius:8px; margin-bottom:10px; display:inline-block;
+  }
+
+  .all-day-block{ margin-bottom:34px; padding-bottom:18px; border-bottom:1px dashed var(--line); }
+  .all-day-block:last-child{ border-bottom:none; }
+  .all-day-title{ font-size:19px; font-weight:800; color:var(--red-deep); margin-bottom:4px; display:flex; align-items:baseline; gap:10px;}
+  .all-day-week{ font-size:12.5px; font-weight:500; color:var(--ink-soft); }
+
+  /* ---------- FAQ ---------- */
+  .qa-card{
+    background:var(--paper-card); border:1px solid var(--line); border-left:5px solid var(--gold);
+    border-radius:12px; padding:14px 16px; margin-bottom:14px; box-shadow:0 3px 12px rgba(90,50,20,0.05);
+  }
+  .qa-tag{ display:inline-block; font-size:10.5px; font-weight:700; color:#fff; background:var(--gold); padding:2px 9px; border-radius:999px; margin-bottom:6px; }
+  .qa-date{ display:inline-block; font-size:11px; color:var(--ink-soft); margin-left:6px; }
+  .qa-title{ font-weight:700; font-size:14.5px; color:var(--ink); margin:4px 0 7px; }
+  .qa-body{ font-size:13px; color:var(--ink-soft); line-height:1.65; }
+
+  .section-title{
+    font-size:15px; font-weight:800; color:var(--red-deep);
+    margin:22px 2px 12px; padding-bottom:6px; border-bottom:2px solid var(--line);
+  }
+  .section-title:first-child{ margin-top:2px; }
+
+  /* ---------- Changelog ---------- */
+  .log-entry{
+    background:var(--paper-card); border:1px solid var(--line); border-radius:12px;
+    padding:14px 16px; margin-bottom:14px; box-shadow:0 3px 12px rgba(90,50,20,0.05);
+  }
+  .log-date{ font-weight:800; font-size:14px; color:var(--red-deep); margin-bottom:8px; }
+  .log-item{ font-size:12.5px; color:var(--ink); line-height:1.7; margin-bottom:5px; padding-left:2px; }
+  .log-tag{
+    display:inline-block; font-size:10px; font-weight:700; color:#fff;
+    padding:1px 8px; border-radius:999px; margin-right:7px; vertical-align:1px;
+  }
+  .log-tag.log-add{ background:var(--c-class); }
+  .log-tag.log-update{ background:var(--gold); }
+  .log-tag.log-remove{ background:var(--red); }
+  .log-tag.log-sync{ background:var(--ink-soft); }
+  .log-source{ font-size:11px; color:var(--ink-soft); margin-top:8px; padding-top:8px; border-top:1px dashed var(--line); }
+
+  /* ---------- Calendar subscribe ---------- */
+  .cal-card{
+    background:var(--paper-card); border:1px solid var(--line); border-radius:14px;
+    padding:18px; margin-bottom:16px; box-shadow:0 3px 12px rgba(90,50,20,0.05);
+  }
+  .cal-card h3{ margin:0 0 8px; font-size:15px; color:var(--red-deep); font-family:"Songti SC",serif; }
+  .cal-card p{ margin:0 0 10px; font-size:13px; color:var(--ink-soft); line-height:1.7; }
+  .cal-link-row{
+    display:flex; flex-wrap:wrap; gap:8px; align-items:center;
+    background:#fbf8f2; border:1px dashed var(--line); border-radius:10px; padding:10px 12px; margin-bottom:8px;
+  }
+  .cal-link-row code{ font-size:12px; color:var(--red-deep); word-break:break-all; flex:1 1 260px; }
+  /* CalDAV / ICS 两种订阅方式 */
+  .cal-method{
+    border:1px solid var(--line); border-radius:12px; padding:12px 14px; margin-bottom:12px; background:#fffdfa;
+  }
+  .cal-method-h{
+    display:flex; align-items:center; gap:8px; font-size:14px; font-weight:700;
+    color:var(--red-deep); margin-bottom:6px; font-family:"Songti SC",serif;
+  }
+  .cal-method-p{ margin:0 0 10px !important; font-size:12.5px; color:var(--ink-soft); line-height:1.7; }
+  .cal-badge{
+    font-size:11px; font-weight:700; padding:2px 8px; border-radius:6px;
+    background:#efe7d8; color:#8a7a68; letter-spacing:.03em;
+  }
+  .cal-badge-best{ background:var(--red-deep); color:#fbf3e3; }
+  .cal-kv{
+    display:flex; flex-wrap:wrap; gap:8px; align-items:center;
+    background:#fbf8f2; border:1px dashed var(--line); border-radius:10px;
+    padding:8px 12px; margin-bottom:6px;
+  }
+  .cal-kv .cal-k{ font-size:12px; color:var(--ink-soft); min-width:48px; }
+  .cal-kv code{ font-size:13px; color:var(--red-deep); font-weight:700; word-break:break-all; flex:1 1 auto; }
+  .cal-note{ margin:8px 0 0 !important; font-size:11.5px; color:var(--ink-soft); line-height:1.6; }
+  .cal-copy-btn{
+    font-size:12px; padding:7px 14px; border-radius:8px; border:1.5px solid var(--red-deep);
+    background:var(--red-deep); color:#fbf3e3; cursor:pointer; font-weight:700; white-space:nowrap;
+  }
+  .cal-copy-btn:hover{ background:var(--red-bright); }
+  .cal-copy-btn.copied{ background:var(--c-class); border-color:var(--c-class); }
+  .cal-steps{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  @media (max-width:640px){ .cal-steps{ grid-template-columns:1fr; } }
+  .cal-plat{ background:#fbf8f2; border:1px solid var(--line); border-radius:10px; padding:12px 14px; }
+  .cal-plat h4{ margin:0 0 8px; font-size:13.5px; color:var(--ink); display:flex; align-items:center; gap:6px; }
+  .cal-plat ol{ margin:0; padding-left:18px; font-size:12.5px; color:var(--ink-soft); line-height:1.7; }
+  .cal-plat li{ margin-bottom:2px; }
+  .cal-subgrid{ display:grid; grid-template-columns:1fr 1fr; gap:12px 16px; }
+  @media (max-width:640px){ .cal-subgrid{ grid-template-columns:1fr; } }
+  .cal-subbrand{ margin:0 0 4px; font-size:12.5px; font-weight:700; color:var(--ink); }
+  .cal-plain-ol{ margin:0; padding-left:18px; font-size:12.5px; color:var(--ink); line-height:1.9; }
+  .cal-plain-ol li{ margin-bottom:6px; }
+  .cal-collapse{ margin-top:10px; }
+  .cal-collapse summary{
+    cursor:pointer; font-size:12.5px; font-weight:600; color:var(--ink-soft);
+    padding:10px 12px; background:#fbf8f2; border:1px dashed var(--line); border-radius:10px;
+    list-style:none; display:flex; align-items:center; gap:7px; user-select:none;
+  }
+  .cal-collapse summary::-webkit-details-marker{ display:none; }
+  .cal-collapse summary::before{ content:'▸'; font-size:11px; color:var(--gold-soft); transition:transform .15s ease; }
+  .cal-collapse[open] summary::before{ content:'▾'; }
+  .cal-collapse[open] summary{ border-radius:10px 10px 0 0; border-bottom-style:solid; }
+  .cal-collapse-body{
+    border:1px dashed var(--line); border-top:none; border-radius:0 0 10px 10px;
+    padding:14px; background:#fffdfa;
+  }
+  .cal-mini-note{ margin:10px 0 0 !important; font-size:11.5px; color:var(--ink-soft); line-height:1.7; }
+
+
+  footer{
+    max-width:980px; margin:10px auto 40px; padding:18px 20px 0;
+    border-top:1px solid var(--line);
+    font-size:12px; color:var(--ink-soft); text-align:center;
+  }
+  footer b{ color:var(--red); }
+
+  .swipe-hint{ display:none; }
+  @media (max-width: 640px){
+    .swipe-hint{ display:block; text-align:center; font-size:11.5px; color:var(--ink-soft); margin:-4px 0 14px; }
+    .cards.pair{ flex-direction:column; }
+    .cards.pair .card{ flex:1 1 auto; }
+    header{ padding: calc(26px + env(safe-area-inset-top)) 16px 22px; }
+    .legend-wrap{ padding:0 14px; margin-top:16px; }
+    .advfilter-wrap{ padding:0 14px; }
+    .tabbar-row{ padding:6px 14px 4px; }
+    main{ padding:6px 14px 50px; }
+    .header-disclaimer{ flex-direction:column; align-items:flex-start; }
+  }
+
+  .nav-arrows{ display:flex; justify-content:space-between; margin-top:26px; gap:12px; }
+  .nav-btn{
+    flex:1; text-align:center; padding:12px; border-radius:12px;
+    background:var(--paper-card); border:1.5px solid var(--line); cursor:pointer;
+    font-size:13px; font-weight:600; color:var(--red-deep);
+    transition:all .15s ease;
+  }
+  .nav-btn:hover{ background:var(--red-deep); color:#fbf3e3; border-color:var(--red-deep); }
+  .nav-btn.disabled{ opacity:.3; pointer-events:none; }
+  /* ---------- pull-to-refresh ---------- */
+  #ptr{
+    position:fixed; left:0; right:0; top:0; z-index:60;
+    display:flex; align-items:center; justify-content:center; gap:8px;
+    height:52px; margin-top:-52px;
+    background:var(--red-deep); color:#f3e6c9; font-size:13px;
+    transition:margin-top .2s ease;
+    pointer-events:none;
+  }
+  #ptr .ptr-spin{
+    width:15px; height:15px; border-radius:50%;
+    border:2px solid rgba(243,230,201,0.35); border-top-color:#f3e6c9;
+    animation:ptr-rotate .7s linear infinite; display:none;
+  }
+  #ptr.loading .ptr-spin{ display:inline-block; }
+  #ptr .ptr-arrow{ display:inline-block; transition:transform .2s ease; }
+  #ptr.ready .ptr-arrow{ transform:rotate(180deg); }
+  #ptr.loading .ptr-arrow{ display:none; }
+  @keyframes ptr-rotate{ to{ transform:rotate(360deg); } }
+</style></style>
+
+<body>
+
+<!--IF:pullToRefresh-->
+<div id="ptr"><span class="ptr-spin"></span><span class="ptr-arrow">↓</span><span class="ptr-text">下拉刷新</span></div>
+<!--ENDIF:pullToRefresh-->
+
+<header>
+  <div class="header-inner">
+    <div class="badge-row">
+      {{LOGO_IMG}}
+      <div class="badge-text">{{SCHOOL_EN}}
+        <b>{{SCHOOL}} · {{CLASS_NAME}}</b>
+      </div>
+    </div>
+    <h1 class="serif">{{TITLE}}</h1>
+    <div class="meta-row">
+      <span><i class="dot"></i>{{TERM_RANGE}}</span>
+    </div>
+    <div class="header-disclaimer">
+      <span>{{DISCLAIMER}}</span>
+      <span class="upd">最后更新：<b id="lastUpdated"></b></span>
+    </div>
+  </div>
+</header>
+
+<!--IF:advancedFilter-->
+<div class="advfilter-wrap">
+  <details class="advfilter">
+    <summary>
+      <span class="advfilter-title">🔍 高级筛选</span>
+      <span class="advfilter-sub">按上课班级 / 老师 / 课程性质 / 学分 / 地点快速定位</span>
+      <svg class="advfilter-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>
+    </summary>
+    <div class="advfilter-grid">
+      <label class="af-field">上课班级
+        <select id="fCls"><option value="">全部</option></select>
+      </label>
+      <label class="af-field">老师
+        <select id="fTeacher"><option value="">全部</option></select>
+      </label>
+      <label class="af-field">课程性质
+        <select id="fNature"><option value="">全部</option></select>
+      </label>
+      <label class="af-field">学分
+        <select id="fCredit"><option value="">全部</option></select>
+      </label>
+      <label class="af-field">地点
+        <select id="fWhere"><option value="">全部</option></select>
+      </label>
+      <button id="fReset" type="button">↺ 重置筛选</button>
+    </div>
+  </details>
+</div>
+<!--ENDIF:advancedFilter-->
+
+<div class="tabbar-sentinel" id="tabbarSentinel"></div>
+<div class="tabbar-sticky" id="tabbarSticky">
+  <div class="tabbar-row">
+    <div class="tabbar-pinned" id="tabbarPinned"></div>
+    <div class="tabbar" id="tabbar"></div>
+  </div>
+</div>
+
+<main>
+  <div class="day-heading">
+    <span class="big serif" id="dayBig"></span>
+    <span class="week" id="dayWeek"></span>
+  </div>
+  <div class="day-note" id="dayNote"></div>
+  <div class="swipe-hint">左右滑动切换日期 · 点击上方标签快速跳转</div>
+  <div class="timeline" id="timeline"></div>
+  <div class="nav-arrows" id="navArrows">
+    <div class="nav-btn" id="prevBtn">← 前一天</div>
+    <div class="nav-btn" id="nextBtn">后一天 →</div>
+  </div>
+</main>
+
+<footer>
+  {{FOOTER_NOTE}}<br>
+  <b>{{SCHOOL}}</b> · {{CLASS_NAME}}课程信息一览<!--IF:addToHomescreen--> · <a href="javascript:void(0)" id="openHomescreen" class="orig-link" style="color:var(--red);">📱 添加到手机桌面</a><!--ENDIF:addToHomescreen-->
+</footer>
+
+<!--IF:teacherProfiles-->
+<div class="lightbox" id="teacherModal">
+  <div class="lightbox-inner" style="max-width:460px;">
+    <button class="lightbox-close" id="teacherModalClose" type="button">✕</button>
+    <div class="tm-name serif" id="tmName"></div>
+    <div class="tm-title" id="tmTitle"></div>
+    <div class="tm-row"><span class="tm-label">所属院系/机构</span><span id="tmDept"></span></div>
+    <div class="tm-row"><span class="tm-label">研究方向</span><span id="tmFocus"></span></div>
+    <div class="tm-bio" id="tmBio"></div>
+    <div class="tm-source">信息来源：<a id="tmSource" href="#" target="_blank" rel="noopener"></a></div>
+    <div class="tm-disclaimer">此简介信息整理自公开资料，可能存在滞后或遗漏，请以老师本人或学校最新公开信息为准。</div>
+  </div>
+</div>
+<!--ENDIF:teacherProfiles-->
+
+<!--IF:addToHomescreen-->
+<div class="lightbox" id="homescreenModal">
+  <div class="lightbox-inner" style="max-width:480px;">
+    <button class="lightbox-close" id="homescreenModalClose" type="button">✕</button>
+    <div class="tm-name serif" style="margin-bottom:4px;">添加到手机桌面</div>
+    <div class="tm-title" style="margin-bottom:14px;">加到桌面后点图标就能直接打开，不用每次翻聊天记录找链接</div>
+    <div class="cal-steps" style="grid-template-columns:1fr;">
+      <div class="cal-plat">
+        <h4>📱 iPhone（Safari）</h4>
+        <ol>
+          <li>用 Safari 打开本页面（如果是在微信里点开的，先点右上角「⋯」选择「在浏览器打开」）</li>
+          <li>点击底部工具栏中间的「分享」按钮（方框加向上箭头）</li>
+          <li>下滑菜单，找到并点击「添加到主屏幕」</li>
+          <li>右上角点「添加」即可</li>
+        </ol>
+      </div>
+      <div class="cal-plat">
+        <h4>🤖 Android</h4>
+        <ol>
+          <li>用系统自带浏览器打开本页面（同样，微信里先点「⋯」选择「在浏览器打开」）</li>
+          <li>点击右上角或右下角的菜单按钮（通常是「⋮」或「≡」）</li>
+          <li>选择「添加到桌面」／「添加到主屏幕」／「安装应用」（各品牌浏览器叫法略有不同）</li>
+          <li>确认后桌面就会出现图标</li>
+        </ol>
+      </div>
+    </div>
+    <div class="lightbox-hint">点击外部区域、按 Esc 或右上角 ✕ 关闭</div>
+  </div>
+</div>
+<!--ENDIF:addToHomescreen-->
+
+<script>
+/* ==========================================================================
+   本文件由 npm run build 自动生成，请勿直接编辑。
+   要改数据 → data/schedule.json      要改配置 → config.json
+   要改样式或逻辑 → site/templates/index.template.html
+   ========================================================================== */
+const DATA = /*__DATA__*/{};
+const CFG  = /*__CONFIG__*/{};
+const FEATURES = CFG.features || {};
+const STORAGE_KEY = 'gh_schedule_idx';
+
+const LAST_UPDATED = DATA.lastUpdated || '';
+const CATS       = DATA.CATS || {};
+const DAYS       = DATA.DAYS || [];
+const TEACHERS   = (FEATURES.teacherProfiles === false) ? {} : (DATA.TEACHERS || {});
+const PINYIN     = DATA.PINYIN || {};
+const QA_ITEMS   = (FEATURES.faq === false) ? [] : (DATA.QA_ITEMS || []);
+const CHANGELOG  = (FEATURES.changelog === false) ? [] : (DATA.CHANGELOG || []);
+const CAL_MONTHS = DATA.CAL_MONTHS || [];
+const ICS_URL    = /*__ICS_URL__*/'';
+
+let activeCat = null;
+let idx = 0; // number | 'all' | 'faq' | 'cal'
+const filters = { cls:'', teacher:'', nature:'', credit:'', where:'' };
+
+function isSpecial(){ return idx==='all' || idx==='faq' || idx==='cal' || idx==='semester'; }
+
+function iconFor(k){
+  return {who:'👤', where:'📍'}[k] || '';
+}
+
+function renderWhoHTML(who){
+  if(!who) return '';
+  const names = who.split(/[、\/]/).map(s=>s.trim()).filter(Boolean);
+  const linked = names.map(n=>{
+    const has = !!TEACHERS[n];
+    return `<span class="teacher-name ${has?'has-info':''}" data-teacher="${n}">${n}</span>`;
+  }).join('、');
+  return `<span><i class="ic">${iconFor('who')}</i>${linked}</span>`;
+}
+
+/* ---------- filter matching ---------- */
+function matchesFilters(ev){
+  if(activeCat && ev.cat !== activeCat) return false;
+  if(filters.cls && ev.cls !== filters.cls) return false;
+  if(filters.teacher && !(ev.who && ev.who.includes(filters.teacher))) return false;
+  if(filters.nature && ev.nature !== filters.nature) return false;
+  if(filters.credit && ev.credit !== filters.credit) return false;
+  if(filters.where && ev.where !== filters.where) return false;
+  return true;
+}
+function dayHasMatch(day){ return day.events.some(matchesFilters); }
+function anyFilterActive(){
+  return !!(activeCat || filters.cls || filters.teacher || filters.nature || filters.credit || filters.where);
+}
+
+/* ---------- legend (category chips) ---------- */
+function renderLegend(){
+  const el = document.getElementById('legend');
+  if(!el) return; // 分类筛选模块已下线，容器不存在时直接跳过
+  const HIDDEN_LEGEND_CATS = Object.entries(CATS).filter(([,v])=>v.hideInLegend).map(([k])=>k);
+  const allChip = `<div class="chip" data-cat="__all__"><span class="sw" style="background:#3a332c"></span>全部</div>`;
+  const catChips = Object.entries(CATS).filter(([k])=>!HIDDEN_LEGEND_CATS.includes(k)).map(([k,v])=>
+    `<div class="chip" data-cat="${k}" style="--c:${v.color}"><span class="sw" style="background:${v.color}"></span>${v.label}</div>`
+  ).join('');
+  el.innerHTML = allChip + catChips;
+  el.querySelectorAll('.chip').forEach(chip=>{
+    chip.addEventListener('click', ()=>{
+      const cat = chip.dataset.cat;
+      if(cat === '__all__'){ activeCat = null; }
+      else { activeCat = (activeCat === cat) ? null : cat; }
+      renderLegend2();
+      afterFilterChange();
+    });
+  });
+  renderLegend2();
+}
+function renderLegend2(){
+  document.querySelectorAll('.chip').forEach(chip=>{
+    const isAll = chip.dataset.cat === '__all__';
+    const isActive = isAll ? (activeCat === null) : (activeCat === chip.dataset.cat);
+    chip.classList.toggle('active', isActive);
+    chip.classList.toggle('dim', !isActive && activeCat !== null);
+  });
+}
+
+/* ---------- advanced filters ---------- */
+function uniqueVals(fn){
+  const set = new Set();
+  DAYS.forEach(d=>d.events.forEach(ev=>{ const v = fn(ev); if(v) set.add(v); }));
+  return Array.from(set);
+}
+function pinyinKey(name){ return PINYIN[name] || name; }
+
+function uniqueTeachers(){
+  const set = new Set();
+  DAYS.forEach(d=>d.events.forEach(ev=>{
+    if(ev.who){ ev.who.split(/[、,]/).forEach(t=>{ t=t.trim(); if(t) set.add(t); }); }
+  }));
+  return Array.from(set).sort((a,b)=>pinyinKey(a).localeCompare(pinyinKey(b)));
+}
+function fillSelect(sel, values, labelFn){
+  values.forEach(v=>{
+    const o = document.createElement('option');
+    o.value = v;
+    o.textContent = labelFn ? labelFn(v) : v;
+    sel.appendChild(o);
+  });
+}
+function setupAdvFilters(){
+  const fCls = document.getElementById('fCls');
+  const fTeacher = document.getElementById('fTeacher');
+  const fNature = document.getElementById('fNature');
+  const fCredit = document.getElementById('fCredit');
+  const fWhere = document.getElementById('fWhere');
+
+  fillSelect(fCls, uniqueVals(ev=>ev.cls));
+  fillSelect(fTeacher, uniqueTeachers());
+  fillSelect(fNature, uniqueVals(ev=>ev.nature));
+  fillSelect(fCredit, uniqueVals(ev=>ev.credit), v=>v+' 学分');
+  fillSelect(fWhere, uniqueVals(ev=>ev.where));
+
+  fCls.addEventListener('change', ()=>{ filters.cls = fCls.value; afterFilterChange(); });
+  fTeacher.addEventListener('change', ()=>{ filters.teacher = fTeacher.value; afterFilterChange(); });
+  fNature.addEventListener('change', ()=>{ filters.nature = fNature.value; afterFilterChange(); });
+  fCredit.addEventListener('change', ()=>{ filters.credit = fCredit.value; afterFilterChange(); });
+  fWhere.addEventListener('change', ()=>{ filters.where = fWhere.value; afterFilterChange(); });
+
+  document.getElementById('fReset').addEventListener('click', ()=>{
+    filters.cls = filters.teacher = filters.nature = filters.credit = filters.where = '';
+    fCls.value = fTeacher.value = fNature.value = fCredit.value = fWhere.value = '';
+    activeCat = null;
+    renderLegend2();
+    renderDay();
+  });
+}
+
+/* ---------- tabs ---------- */
+function renderTabs(){
+  const el = document.getElementById('tabbar');
+  const pinnedEl = document.getElementById('tabbarPinned');
+  const totalCount = DAYS.reduce((s,d)=>s+d.events.length, 0);
+  const allTab = `<div class="tab metaTab" data-i="all">
+      <div class="d1 serif">全部</div>
+      <div class="d2">日期</div>
+      <div class="cnt">${totalCount} 项</div>
+    </div>`;
+  const ICON_HELP = '<svg class="tab-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>';
+  const faqTab = `<div class="tab metaTab" data-i="faq">
+      <div class="d1 serif">${ICON_HELP}更新</div>
+      <div class="d2">迭代记录</div>
+      <div class="cnt">${CHANGELOG.length} 次</div>
+    </div>`;
+  const ICON_CAL = '<svg class="tab-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line><line x1="12" y1="14" x2="12" y2="18"></line><line x1="10" y1="16" x2="14" y2="16"></line></svg>';
+  const ICON_GRID = '<svg class="tab-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="3" width="7" height="7" rx="1"></rect><rect x="3" y="14" width="7" height="7" rx="1"></rect><rect x="14" y="14" width="7" height="7" rx="1"></rect></svg>';
+  const calTab = `<div class="tab metaTab" data-i="cal">
+      <div class="d1 serif">${ICON_CAL}订阅</div>
+      <div class="d2">日历</div>
+      <div class="cnt">使用说明</div>
+    </div>`;
+  const semTab = `<div class="tab metaTab" data-i="semester">
+      <div class="d1 serif">${ICON_GRID}学期</div>
+      <div class="d2">总览</div>
+      <div class="cnt">一页看全</div>
+    </div>`;
+  const dayTabs = DAYS.map((d,i)=>
+    `<div class="tab ${d.isLater?'laterTab':''}" data-i="${i}">
+      <div class="d1 serif">${d.d1}</div>
+      <div class="d2">${d.d2}</div>
+      <div class="cnt">${d.events.length} 项</div>
+    </div>`
+  ).join('');
+  pinnedEl.innerHTML = (FEATURES.semesterGrid !== false ? semTab : '')
+    + (FEATURES.calendarSubscribe !== false ? calTab : '')
+    + ((FEATURES.changelog !== false || FEATURES.faq !== false) ? faqTab : '');
+  el.innerHTML = allTab + dayTabs;
+  document.querySelectorAll('#tabbarPinned .tab, #tabbar .tab').forEach(tab=>{
+    tab.addEventListener('click', ()=>{
+      const v = tab.dataset.i;
+      idx = ['all','faq','cal','semester'].includes(v) ? v : +v;
+      renderDay();
+    });
+  });
+}
+
+/* ---------- rendering: day timeline ---------- */
+function buildDayTimelineHTML(day){
+  const groups = [];
+  day.events.forEach(ev=>{
+    let g = groups.find(g=>g.time===ev.time);
+    if(!g){ g = {time:ev.time, items:[]}; groups.push(g); }
+    g.items.push(ev);
+  });
+
+  return groups.map(g=>{
+    const isPair = g.items.length > 1;
+    const cardsHtml = g.items.map(ev=>{
+      const cat = CATS[ev.cat];
+      const dimmed = !matchesFilters(ev);
+      const footBits = [];
+      if(ev.who) footBits.push(renderWhoHTML(ev.who));
+      if(ev.where) footBits.push(`<span><i class="ic">${iconFor('where')}</i>${ev.where}</span>`);
+      return `<div class="card ${dimmed?'dim':''} ${ev.intl?'intl':''}" style="--cat-color:${cat.color}">
+        <div class="card-top">
+          <div class="card-title">${ev.title}</div>
+          <div class="cat-tag" style="--cat-color:${cat.color}">${cat.label}</div>
+        </div>
+        ${ev.sub ? `<div class="card-sub">${ev.sub}</div>` : ''}
+        ${ev.intl ? `<div class="intl-badge">🌐 港澳台 / 留学生专场</div>` : ''}
+        ${(ev.links || []).map(lk => `<a class="card-link" href="${lk.href}"><span class="ic-emoji">${lk.icon || '📖'}</span>${lk.label}<span class="arw">&rsaquo;</span></a>`).join('')}
+        ${ev.note ? `<div class="card-note">📌 ${ev.note}</div>` : ''}
+        ${footBits.length ? `<div class="card-foot">${footBits.join('')}</div>` : ''}
+      </div>`;
+    }).join('');
+    return `<div class="slot">
+      <div class="slot-time">${g.time}</div>
+      ${isPair ? `<div class="parallel-hint">同一时段安排两项内容，请留意分组 / 分类通知</div>` : ''}
+      <div class="cards ${isPair?'pair':''}">${cardsHtml}</div>
+    </div>`;
+  }).join('');
+}
+
+function resetNavForSpecial(){
+  document.getElementById('navArrows').style.display = 'none';
+}
+
+function renderQAHTML(){
+  return QA_ITEMS.map(item => `
+    <div class="qa-card">
+      <span class="qa-tag">${item.tag}</span><span class="qa-date">${item.date}</span>
+      <div class="qa-title">${item.title}</div>
+      <div class="qa-body">${item.body}</div>
+    </div>
+  `).join('');
+}
+
+const LOG_TYPE_LABEL = { add:'新增', update:'修改', remove:'移除', sync:'同步' };
+const LOG_TYPE_ORDER = { add:0, update:1, remove:2, sync:3 };
+function renderChangelogHTML(){
+  return CHANGELOG.map(entry => {
+    const sorted = [...entry.changes].sort((a,b)=>LOG_TYPE_ORDER[a.type]-LOG_TYPE_ORDER[b.type]);
+    return `
+    <div class="log-entry">
+      <div class="log-date serif">${entry.date}</div>
+      ${sorted.map(c => `
+        <div class="log-item"><span class="log-tag log-${c.type}">${LOG_TYPE_LABEL[c.type]}</span>${c.text}</div>
+      `).join('')}
+      ${entry.source ? `<div class="log-source">${entry.source}</div>` : ''}
+    </div>
+  `;
+  }).join('');
+}
+
+function renderCalHTML(){
+  const cal = CFG.calendar || {};
+  const dav = cal.caldav || {};
+  const davOn = !!(dav.enabled && dav.server && dav.user);
+  const calName = cal.calName || '课表';
+
+  const davBlock = !davOn ? '' : `
+      <div class="cal-method">
+        <div class="cal-method-h"><span class="cal-badge cal-badge-best">iPhone / iPad</span>CalDAV 账户，4 步搞定</div>
+        <ol class="cal-plain-ol">
+          <li>「设置」→「通用」→「日历」→「账户」→「添加账户」</li>
+          <li>选择「其他」→「添加 CalDAV 账户」</li>
+          <li>
+            依次填入下面几项，描述随便填：
+            <div class="cal-kv" style="margin-top:8px;"><span class="cal-k">服务器</span><code id="caldavServer">${dav.server}</code><button class="cal-copy-btn" id="copyCaldavServer" type="button">复制</button></div>
+            <div class="cal-kv"><span class="cal-k">用户名</span><code id="caldavUser">${dav.user}</code><button class="cal-copy-btn" id="copyCaldavUser" type="button">复制</button></div>
+            ${dav.pass ? `<div class="cal-kv"><span class="cal-k">密码</span><code id="caldavPass">${dav.pass}</code><button class="cal-copy-btn" id="copyCaldavPass" type="button">复制</button></div>` : `<div class="cal-kv"><span class="cal-k">密码</span><code>请向课代表索取</code></div>`}
+            <p class="cal-note">服务器一栏只填 <b>${dav.server}</b>，前面不要加 https://，后面也不要加路径。</p>
+          </li>
+          <li>点「下一步」保存。如果日历 App 里看不到课表，打开「日历」App → 点底部「日历」→ 把「${dav.displayName || calName}」勾上</li>
+        </ol>
+      </div>
+
+      <details class="cal-collapse">
+        <summary>💻 用的不是 iPhone？点开看 Mac / 安卓 / 鸿蒙 / Windows 的 CalDAV 配置</summary>
+        <div class="cal-collapse-body">
+          <div class="cal-steps">
+            <div class="cal-plat">
+              <h4>🖥️ Mac（日历 App）</h4>
+              <ol><li>「日历」→ 菜单栏「日历」→「添加账户」→「其他 CalDAV 账户」，填上面几项信息</li></ol>
+            </div>
+            <div class="cal-plat">
+              <h4>🤖 安卓 / 鸿蒙</h4>
+              <ol>
+                <li>日历设置里如果有「添加账户」「CalDAV」入口，填上面几项信息即可</li>
+                <li>找不到入口的，可以装一个支持 CalDAV 的第三方 App（如 DAVx⁵ 搭配任意日历）</li>
+              </ol>
+            </div>
+            <div class="cal-plat" style="grid-column:1 / -1;">
+              <h4>🪟 Windows</h4>
+              <ol><li>「日历」App → 添加账户 →「高级设置」→ 填服务器 / 用户名 / 密码</li></ol>
+            </div>
+          </div>
+        </div>
+      </details>`;
+
+  const icsPrimary = `
+      <div class="cal-method">
+        <div class="cal-method-h"><span class="cal-badge cal-badge-best">通用</span>订阅链接，一次搞定</div>
+        <div class="cal-link-row">
+          <code id="icsLink">${ICS_URL}</code>
+          <button class="cal-copy-btn" id="copyIcsLink" type="button">复制链接</button>
+        </div>
+        <div class="cal-steps" style="margin-top:14px;">
+          <div class="cal-plat">
+            <h4>📱 iPhone / iPad</h4>
+            <ol>
+              <li>「设置」→「日历」→「账户」→「添加账户」→「其他」</li>
+              <li>选「添加已订阅的日历」，粘贴上面的链接</li>
+              <li>点「下一步」→「存储」即可</li>
+            </ol>
+            <p class="cal-mini-note">🔸 如果提示 SSL 连接失败，先用 Safari 直接打开这个链接，按提示确认后再回来添加。</p>
+          </div>
+          <div class="cal-plat">
+            <h4>🖥️ Mac（日历 App）</h4>
+            <ol><li>菜单栏「文件」→「新建日历订阅…」，粘贴链接后点「订阅」</li>
+                <li>在弹出的设置里把「自动刷新」调成每小时，更新会更及时</li></ol>
+          </div>
+          <div class="cal-plat">
+            <h4>🤖 安卓 / 鸿蒙</h4>
+            <ol><li>系统自带日历大多不支持网址订阅，装一个支持 ICS 订阅的日历 App 即可</li>
+                <li>或者先在电脑上用 Google 日历「从网址添加」，手机再同步 Google 账号</li></ol>
+            <p class="cal-mini-note">🔸 安卓和鸿蒙的自带日历其实是支持 CalDAV 的，只是不支持这种网址订阅。如果班里安卓同学多，建议课代表改用 CalDAV 方案。</p>
+          </div>
+          <div class="cal-plat">
+            <h4>🪟 Windows / Outlook</h4>
+            <ol><li>网页版 Outlook → 设置 →「日历」→「添加日历」→「从网络订阅」，粘贴链接</li></ol>
+          </div>
+        </div>
+      </div>`;
+
+  return `
+    <div class="cal-card">
+      <h3>📅 订阅课表到你的日历</h3>
+      <p>订阅一次，以后课表有任何更新都会自动同步到日历里，不用重复导入。</p>
+      ${davOn ? davBlock : ''}
+      ${davOn ? `<details class="cal-collapse"><summary>不方便用 CalDAV？也可以用通用订阅链接</summary><div class="cal-collapse-body">${icsPrimary}</div></details>` : icsPrimary}
+    </div>
+    <div class="cal-card">
+      <h3>💡 长时间没有自动更新？试试手动刷新</h3>
+      <p>订阅日历不是实时同步的，是按各平台自己的节奏定期拉取；如果课表明明更新了，你这边却迟迟没看到变化，可以手动催一下：</p>
+      <div class="cal-steps">
+        <div class="cal-plat">
+          <h4>📱 iPhone（iOS）</h4>
+          <ol>
+            <li>打开「日历」App，点击右下角图标，进入日历列表页面</li>
+            <li>手指从上往下拉一下（跟刷新邮件的手势一样），即可触发同步</li>
+          </ol>
+        </div>
+        <div class="cal-plat">
+          <h4>🖥️ Mac（日历 App）</h4>
+          <ol>
+            <li>打开「日历」App，菜单栏「显示」→「刷新日历」</li>
+            <li>或者按住 Control 点按这个订阅日历 →「显示简介」→ 调整「自动刷新」频率</li>
+          </ol>
+        </div>
+      </div>
+      <p class="cal-mini-note">🔸 Google 日历对订阅源的刷新间隔最长可能到 24 小时，这是 Google 自己的策略，任何订阅源都改变不了。急着看变化请直接打开本页面。</p>
+    </div>
+  `;
+}
+
+function renderSemesterHTML(){
+  const now = new Date();
+  const todayIso = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+  const todayInRange = CAL_MONTHS.some(({y,m}) => y === now.getFullYear() && m === now.getMonth()+1);
+  const monthsHtml = CAL_MONTHS.map(({y,m})=>{
+    const startWeekday = (new Date(y, m-1, 1).getDay() + 6) % 7; // Monday-first
+    const daysInMonth = new Date(y, m, 0).getDate();
+    let cells = '';
+    for(let i=0;i<startWeekday;i++) cells += `<div class="sem-cell empty"></div>`;
+    for(let d=1; d<=daysInMonth; d++){
+      const iso = `${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      const dayIdx = DATE_TO_DAYINDEX[iso];
+      const has = dayIdx !== undefined;
+      const isActive = has && idx === dayIdx;
+      const hasLink = has && DAYS[dayIdx].events.some(ev => ev.links && ev.links.length);
+      const isToday = iso === todayIso;
+      cells += `<div class="sem-cell ${has?'has':''} ${isActive?'active':''} ${hasLink?'has-link':''} ${isToday?'today':''}" ${has?`data-idx="${dayIdx}"`:''} ${isToday?'data-today="1"':''}>${d}</div>`;
+    }
+    return `<div class="sem-month" data-ym="${y}-${m}">
+      <div class="sem-month-title serif">${y}年${m}月</div>
+      <div class="sem-weekdays"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div>
+      <div class="sem-grid">${cells}</div>
+    </div>`;
+  }).join('');
+  const todayBtn = todayInRange ? `<button type="button" class="sem-today-btn" id="semTodayBtn">📍 回到今天</button>` : '';
+  return `
+    <div class="sem-legend"><span class="dp-dot has"></span>有课程可点<span style="width:6px;display:inline-block;"></span><span class="dp-dot"></span>无课程<span style="width:6px;display:inline-block;"></span><span class="dp-dot link"></span>含讲义/照片等附件${todayBtn}</div>
+    <div class="sem-months">${monthsHtml}</div>
+  `;
+}
+
+function jumpToToday(){
+  const cell = document.querySelector('.sem-cell[data-today="1"]');
+  if(!cell) return;
+  const month = cell.closest('.sem-month');
+  if(month) month.scrollIntoView({behavior:'smooth', block:'center'});
+  cell.classList.remove('today-pulse');
+  void cell.offsetWidth;
+  cell.classList.add('today-pulse');
+}
+
+function bindCopyButtons(){
+  const bind = (btnId, textId) => {
+    const btn = document.getElementById(btnId);
+    if(!btn) return;
+    const original = btn.textContent;
+    btn.addEventListener('click', async ()=>{
+      const text = document.getElementById(textId).textContent;
+      try{
+        await navigator.clipboard.writeText(text);
+      }catch(e){
+        const ta = document.createElement('textarea');
+        ta.value = text; document.body.appendChild(ta); ta.select();
+        document.execCommand('copy'); document.body.removeChild(ta);
+      }
+      btn.textContent = '已复制 ✓';
+      btn.classList.add('copied');
+      setTimeout(()=>{ btn.textContent = original; btn.classList.remove('copied'); }, 1800);
+    });
+  };
+  bind('copyIcsLink', 'icsLink');
+  bind('copyCaldavServer', 'caldavServer');
+  bind('copyCaldavUser', 'caldavUser');
+  bind('copyCaldavPass', 'caldavPass');
+}
+
+/* ---------- semester calendar date map ---------- */
+const DATE_TO_DAYINDEX = {};
+DAYS.forEach((day, i)=>{
+  if(!day.start || !day.end) return;
+  const [sy,sm,sd] = day.start.split('-').map(Number);
+  const [ey,em,ed] = day.end.split('-').map(Number);
+  let cur = new Date(sy, sm-1, sd);
+  const end = new Date(ey, em-1, ed);
+  while(cur <= end){
+    const iso = `${cur.getFullYear()}-${String(cur.getMonth()+1).padStart(2,'0')}-${String(cur.getDate()).padStart(2,'0')}`;
+    DATE_TO_DAYINDEX[iso] = i;
+    cur.setDate(cur.getDate()+1);
+  }
+});
+
+function renderDay(){
+  try{ sessionStorage.setItem(STORAGE_KEY, String(idx)); }catch(e){}
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active', t.dataset.i === String(idx)));
+
+  const tl = document.getElementById('timeline');
+
+  if(idx === 'all'){
+    document.getElementById('dayBig').textContent = '全部日期';
+    document.getElementById('dayWeek').textContent = `共 ${DAYS.length} 个日期一览`;
+    document.getElementById('dayNote').textContent = '';
+    tl.innerHTML = DAYS.map(day => `
+      <div class="all-day-block">
+        <div class="all-day-title serif">${day.big} <span class="all-day-week">${day.week}</span></div>
+        ${day.note ? `<div class="day-note" style="margin:0 0 14px;">${day.note}</div>` : ''}
+        <div class="timeline">${buildDayTimelineHTML(day)}</div>
+      </div>
+    `).join('');
+    resetNavForSpecial();
+  } else if(idx === 'faq'){
+    document.getElementById('dayBig').textContent = '更新记录';
+    document.getElementById('dayWeek').textContent = `${CHANGELOG.length} 次更新`;
+    document.getElementById('dayNote').textContent = '';
+    tl.innerHTML = `
+      ${renderChangelogHTML()}
+    `;
+    resetNavForSpecial();
+  } else if(idx === 'cal'){
+    document.getElementById('dayBig').textContent = '订阅日历';
+    document.getElementById('dayWeek').textContent = '在你的日历 App 里实时同步';
+    document.getElementById('dayNote').textContent = '';
+    tl.innerHTML = renderCalHTML();
+    bindCopyButtons();
+    resetNavForSpecial();
+  } else if(idx === 'semester'){
+    document.getElementById('dayBig').textContent = '学期日历总览';
+    document.getElementById('dayWeek').textContent = '2026年8月－2027年1月，一页看完整学期';
+    document.getElementById('dayNote').textContent = '';
+    tl.innerHTML = renderSemesterHTML();
+    resetNavForSpecial();
+  } else {
+    const day = DAYS[idx];
+    document.getElementById('dayBig').textContent = day.big;
+    document.getElementById('dayWeek').textContent = day.week;
+    document.getElementById('dayNote').textContent = day.note || '';
+    tl.innerHTML = buildDayTimelineHTML(day);
+    document.getElementById('navArrows').style.display = '';
+    const prevBtn = document.getElementById('prevBtn');
+    prevBtn.textContent = idx===0 ? '◀ 查看全部' : '← 前一天';
+    prevBtn.classList.remove('disabled');
+    document.getElementById('nextBtn').textContent = '后一天 →';
+    document.getElementById('nextBtn').classList.toggle('disabled', idx===DAYS.length-1);
+  }
+
+  const activeTab = document.querySelector('.tab.active');
+  if(activeTab) activeTab.scrollIntoView({behavior:'smooth', inline:'center', block:'nearest'});
+}
+
+function afterFilterChange(){
+  if(anyFilterActive()){
+    const day = (typeof idx === 'number') ? DAYS[idx] : null;
+    if(!day || !dayHasMatch(day)){
+      const found = DAYS.findIndex(d => dayHasMatch(d));
+      if(found !== -1) idx = found;
+    }
+  }
+  renderDay();
+}
+
+document.getElementById('prevBtn').addEventListener('click', ()=>{
+  if(isSpecial()) return;
+  if(idx===0){ idx='all'; renderDay(); return; }
+  idx--; renderDay();
+});
+document.getElementById('nextBtn').addEventListener('click', ()=>{ if(!isSpecial() && idx<DAYS.length-1){ idx++; renderDay(); } });
+
+document.addEventListener('keydown', e=>{
+  if(isSpecial()) return;
+  if(e.key==='ArrowLeft' && idx>0){ idx--; renderDay(); }
+  if(e.key==='ArrowRight' && idx<DAYS.length-1){ idx++; renderDay(); }
+});
+
+let touchX = null;
+document.addEventListener('touchstart', e=>{
+  if(e.target.closest('.tabbar-row')){ touchX = null; return; }
+  touchX = e.touches[0].clientX;
+}, {passive:true});
+document.addEventListener('touchend', e=>{
+  if(touchX===null || isSpecial()) { touchX=null; return; }
+  const dx = e.changedTouches[0].clientX - touchX;
+  if(Math.abs(dx) > 60){
+    if(dx < 0 && idx < DAYS.length-1){ idx++; renderDay(); }
+    if(dx > 0 && idx > 0){ idx--; renderDay(); }
+  }
+  touchX = null;
+}, {passive:true});
+
+/* ---------- pull-to-refresh（下拉到底部无更新概念，本页数据是静态部署的，
+   刷新等价于强制拉取服务器最新版本，用时间戳参数绕开浏览器缓存） ---------- */
+(function(){
+  const el = document.getElementById('ptr');
+  const textEl = el.querySelector('.ptr-text');
+  const THRESHOLD = 68;
+  let startY = null, pulling = false, ready = false, loading = false;
+
+  document.addEventListener('touchstart', e=>{
+    if(loading || window.scrollY > 0) { startY = null; return; }
+    startY = e.touches[0].clientY;
+    pulling = true;
+  }, {passive:true});
+
+  document.addEventListener('touchmove', e=>{
+    if(!pulling || startY===null || loading) return;
+    const dy = e.touches[0].clientY - startY;
+    if(dy <= 0){ el.style.marginTop=''; ready=false; el.classList.remove('ready'); return; }
+    const dist = Math.min(dy * 0.5, 90);
+    el.style.marginTop = (-52 + dist) + 'px';
+    const nowReady = dist >= THRESHOLD;
+    if(nowReady !== ready){
+      ready = nowReady;
+      el.classList.toggle('ready', ready);
+      textEl.textContent = ready ? '松开刷新' : '下拉刷新';
+    }
+  }, {passive:true});
+
+  document.addEventListener('touchend', ()=>{
+    if(!pulling) return;
+    pulling = false;
+    if(ready && !loading){
+      loading = true;
+      el.classList.add('loading');
+      textEl.textContent = '刷新中...';
+      el.style.marginTop = '0px';
+      setTimeout(()=>{
+        location.href = location.pathname + '?_r=' + Date.now() + location.hash;
+      }, 300);
+    } else {
+      el.style.marginTop = '';
+      el.classList.remove('ready');
+    }
+    startY = null; ready = false;
+  }, {passive:true});
+})();
+
+function openLightbox(){ document.getElementById('lightbox').classList.add('open'); }
+function closeLightbox(){ document.getElementById('lightbox').classList.remove('open'); }
+document.getElementById('openOrig2').addEventListener('click', openLightbox);
+document.getElementById('lightboxClose').addEventListener('click', closeLightbox);
+document.getElementById('lightbox').addEventListener('click', e=>{ if(e.target.id === 'lightbox') closeLightbox(); });
+document.addEventListener('keydown', e=>{ if(e.key === 'Escape') closeLightbox(); });
+
+function openTeacherModal(name){
+  const t = TEACHERS[name];
+  if(!t) return;
+  document.getElementById('tmName').textContent = name;
+  document.getElementById('tmTitle').textContent = t.title || '';
+  document.getElementById('tmDept').textContent = t.dept || '暂无信息';
+  document.getElementById('tmFocus').textContent = t.focus || '暂无信息';
+  document.getElementById('tmBio').textContent = t.bio || '';
+  const src = document.getElementById('tmSource');
+  src.textContent = t.sourceLabel || t.source || '暂无';
+  src.href = t.source || '#';
+  document.getElementById('teacherModal').classList.add('open');
+}
+function closeTeacherModal(){ document.getElementById('teacherModal').classList.remove('open'); }
+document.getElementById('teacherModalClose').addEventListener('click', closeTeacherModal);
+document.getElementById('teacherModal').addEventListener('click', e=>{ if(e.target.id === 'teacherModal') closeTeacherModal(); });
+document.addEventListener('keydown', e=>{ if(e.key === 'Escape') closeTeacherModal(); });
+document.addEventListener('click', e=>{
+  const t = e.target.closest('.teacher-name.has-info');
+  if(t) openTeacherModal(t.dataset.teacher);
+});
+document.addEventListener('click', e=>{
+  const c = e.target.closest('.sem-cell.has');
+  if(c){ idx = +c.dataset.idx; renderDay(); }
+});
+document.addEventListener('click', e=>{
+  if(e.target.closest('#semTodayBtn')) jumpToToday();
+});
+
+function openHomescreenModal(){ document.getElementById('homescreenModal').classList.add('open'); }
+function closeHomescreenModal(){ document.getElementById('homescreenModal').classList.remove('open'); }
+document.getElementById('openHomescreen').addEventListener('click', openHomescreenModal);
+document.getElementById('homescreenModalClose').addEventListener('click', closeHomescreenModal);
+document.getElementById('homescreenModal').addEventListener('click', e=>{ if(e.target.id === 'homescreenModal') closeHomescreenModal(); });
+document.addEventListener('keydown', e=>{ if(e.key === 'Escape') closeHomescreenModal(); });
+
+if('IntersectionObserver' in window){
+  const stickyBar = document.getElementById('tabbarSticky');
+  const sentinel = document.getElementById('tabbarSentinel');
+  new IntersectionObserver(([entry])=>{
+    stickyBar.classList.toggle('is-stuck', !entry.isIntersecting);
+  }, { threshold:0 }).observe(sentinel);
+}
+
+document.getElementById('lastUpdated').textContent = LAST_UPDATED;
+function computeDefaultIdx(){
+  const now = new Date();
+  const todayIso = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+  if(DATE_TO_DAYINDEX[todayIso] !== undefined) return DATE_TO_DAYINDEX[todayIso];
+  const futureIso = Object.keys(DATE_TO_DAYINDEX).sort().find(iso => iso > todayIso);
+  if(futureIso !== undefined) return DATE_TO_DAYINDEX[futureIso];
+  return DAYS.length - 1; // whole semester already past: show the last day
+}
+function restoreIdx(){
+  try{
+    const saved = sessionStorage.getItem(STORAGE_KEY);
+    if(saved === null) return null;
+    if(['all','faq','cal','semester'].includes(saved)) return saved;
+    const n = Number(saved);
+    if(Number.isInteger(n) && n >= 0 && n < DAYS.length) return n;
+  }catch(e){}
+  return null;
+}
+const restoredIdx = restoreIdx();
+idx = restoredIdx !== null ? restoredIdx : computeDefaultIdx();
+
+renderLegend();
+renderTabs();
+setupAdvFilters();
+renderDay();
+</script>
+</script>
+</body>
+</html>

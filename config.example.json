@@ -1,0 +1,77 @@
+{
+  "$comment": "复制成 config.json 再改。config.json 已在 .gitignore 里，不会被提交。",
+
+  "class": {
+    "school": "北京大学光华管理学院",
+    "schoolEn": "GUANGHUA SCHOOL OF MANAGEMENT",
+    "name": "【你的班级名，例如 2026 级 MBA X 班】",
+    "title": "开学周行程 & 第一学期课表",
+    "termStart": "2026-09-01",
+    "termEnd": "2027-01-17",
+    "disclaimer": "本页为非官方整理版本，一切安排以学校 / 学院正式通知为准。",
+    "footerNote": "内容整理自学院课程通知，如有更新以学院最新通知为准。"
+  },
+
+  "site": {
+    "baseUrl": "https://example.com/schedule",
+    "$comment_baseUrl": "网页部署后的公开地址，结尾不要带斜杠。小程序和日历订阅都会拼在这个地址后面。",
+    "shortName": "课表",
+    "themeColor": "#7d1c26",
+    "logo": "",
+    "$comment_logo": "可选。把你自己有权使用的院徽/班徽放到 site/assets/ 下，这里填文件名（如 logo.png）。留空则不显示，只保留文字。",
+    "watermark": "",
+    "$comment_watermark": "可选。页眉右上角的大号淡水印图片，同样放 site/assets/ 下填文件名。留空则不显示。"
+  },
+
+  "theme": {
+    "$comment": "配色。默认是光华红 + 暖金，其他学院/班级可自行替换。",
+    "redDeep": "#5c1119",
+    "red": "#7d1c26",
+    "redBright": "#a8323d",
+    "gold": "#b8860b",
+    "paper": "#f7f2e7"
+  },
+
+  "calendar": {
+    "calName": "课表",
+    "$comment_calName": "订阅到手机日历里显示的日历名称。",
+    "timezone": "Asia/Shanghai",
+    "uidDomain": "schedule.example.com",
+    "$comment_uidDomain": "只用于生成事件唯一 ID，随便填一个你自己的域名即可，不需要真实可访问。",
+    "icsFileName": "calendar.ics",
+    "refreshHours": 12,
+    "alarmMinutes": 30,
+    "$comment_alarmMinutes": "课前多少分钟提醒。填 0 或删掉则不加提醒。",
+
+    "caldav": {
+      "enabled": false,
+      "$comment": "默认关闭，因为它需要你自己有一台服务器。但只要有服务器就推荐开：几乎所有系统自带日历（含安卓、鸿蒙）都原生支持 CalDAV，而 ICS 网址订阅在安卓和鸿蒙上大多用不了。",
+      "$comment_readonly": "开启前必做：在 CalDAV 服务端把这个账号的写入权限关掉，只保留读。不关的话，任何一个同学在手机上误删一节课都会同步回服务器，全班跟着错。",
+      "$comment_security": "安全提示：网页是公开的，写在这里的密码等于公开发布。所以这个账号只能是【只读、专用、可随时作废】的，绝对不要复用任何其他地方的密码。不想把密码印在页面上，pass 留空即可，网页会显示「请向课代表索取」。",
+      "server": "",
+      "user": "",
+      "pass": "",
+      "displayName": ""
+    }
+  },
+
+  "miniprogram": {
+    "appid": "",
+    "$comment_appid": "微信小程序 AppID，在 mp.weixin.qq.com 后台「开发管理 - 开发设置」里拿。",
+    "navTitle": "课表",
+    "remoteDataUrl": "",
+    "$comment_remoteDataUrl": "留空则自动用 site.baseUrl + /schedule.json。这个域名必须加进小程序后台的 request 合法域名白名单。"
+  },
+
+  "features": {
+    "$comment": "按需开关页面模块，关掉的模块不会渲染，对应数据留空即可。",
+    "advancedFilter": true,
+    "teacherProfiles": false,
+    "faq": true,
+    "changelog": true,
+    "semesterGrid": true,
+    "calendarSubscribe": true,
+    "pullToRefresh": true,
+    "addToHomescreen": true
+  }
+}

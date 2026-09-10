@@ -1,0 +1,21 @@
+{
+  "appid": "",
+  "projectname": "课表",
+  "description": "课表小程序（由 guanghua2026 开源框架生成）",
+  "libVersion": "latest",
+  "compileType": "miniprogram",
+  "miniprogramRoot": "./",
+  "setting": {
+    "es6": true,
+    "enhance": true,
+    "minified": true,
+    "postcss": true,
+    "urlCheck": false,
+    "coverView": true,
+    "lazyloadPlaceholderEnable": false,
+    "packNpmManually": false,
+    "packNpmRelationList": [],
+    "ignoreUploadUnusedFiles": true
+  },
+  "condition": {}
+}
